@@ -16,8 +16,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# API endpoint configuration
-API_BASE_URL = "http://127.0.0.1:8000"
+# Initialize session state for API URL if not present
+if "api_url" not in st.session_state:
+    st.session_state["api_url"] = "http://127.0.0.1:8000"
 
 # Inject Custom CSS for dark glassmorphism design and custom typography
 st.markdown("""
@@ -131,7 +132,7 @@ st.markdown("""
 # Fetching Data helper
 def query_api(endpoint: str, params: dict = None):
     try:
-        url = f"{API_BASE_URL}{endpoint}"
+        url = f"{st.session_state['api_url']}{endpoint}"
         r = httpx.get(url, params=params, timeout=2.0)
         if r.status_code == 200:
             return r.json()
@@ -142,6 +143,9 @@ def query_api(endpoint: str, params: dict = None):
 # Sidebar Controls for Store and Refresh
 with st.sidebar:
     st.markdown("### 🛠️ Controls")
+    api_url_input = st.text_input("API Base URL Override", st.session_state["api_url"])
+    st.session_state["api_url"] = api_url_input
+    
     store_id = st.text_input("Store ID", "ST1008")
     
     # Check API health
@@ -333,15 +337,48 @@ with tab2:
         # Fetch Heatmap coordinates
         heatmap_data = query_api(f"/stores/{store_id}/heatmap", params={"camera_id": selected_cam})
         if not heatmap_data:
-            heatmap_data = {
-                "coordinates": [
-                    {"x": 150.2, "y": 210.5, "weight": 4.5},
-                    {"x": 160.8, "y": 215.1, "weight": 5.0},
-                    {"x": 320.0, "y": 110.4, "weight": 2.1},
-                    {"x": 325.4, "y": 108.9, "weight": 1.8},
-                    {"x": 410.5, "y": 380.2, "weight": 6.7}
-                ]
-            }
+            if selected_cam == "CAM1":  # Skincare Zone
+                heatmap_data = {
+                    "coordinates": [
+                        {"x": 110.2, "y": 120.4, "weight": 8.5},
+                        {"x": 130.5, "y": 140.2, "weight": 6.2},
+                        {"x": 145.8, "y": 115.1, "weight": 5.0},
+                        {"x": 120.4, "y": 135.8, "weight": 7.4},
+                        {"x": 150.1, "y": 155.6, "weight": 4.1}
+                    ]
+                }
+            elif selected_cam == "CAM2":  # Makeup Zone
+                heatmap_data = {
+                    "coordinates": [
+                        {"x": 260.4, "y": 230.6, "weight": 9.2},
+                        {"x": 285.2, "y": 250.8, "weight": 7.5},
+                        {"x": 270.8, "y": 215.1, "weight": 6.8},
+                        {"x": 300.5, "y": 245.4, "weight": 5.1},
+                        {"x": 320.1, "y": 260.8, "weight": 4.9}
+                    ]
+                }
+            elif selected_cam == "CAM3":  # Entry / Exit
+                heatmap_data = {
+                    "coordinates": [
+                        {"x": 80.2, "y": 240.5, "weight": 9.8},
+                        {"x": 95.8, "y": 245.1, "weight": 8.5},
+                        {"x": 75.4, "y": 255.2, "weight": 7.9},
+                        {"x": 110.1, "y": 235.4, "weight": 6.2},
+                        {"x": 85.8, "y": 220.1, "weight": 5.4}
+                    ]
+                }
+            elif selected_cam == "CAM5":  # Billing Counter
+                heatmap_data = {
+                    "coordinates": [
+                        {"x": 480.2, "y": 380.5, "weight": 9.5},
+                        {"x": 495.8, "y": 385.1, "weight": 8.0},
+                        {"x": 510.4, "y": 390.2, "weight": 7.2},
+                        {"x": 525.5, "y": 395.4, "weight": 6.1},
+                        {"x": 540.1, "y": 400.8, "weight": 5.0}
+                    ]
+                }
+            else:
+                heatmap_data = {"coordinates": []}
             
         coords = heatmap_data.get("coordinates", [])
         if coords:
