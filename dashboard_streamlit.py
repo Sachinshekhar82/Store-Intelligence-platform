@@ -18,7 +18,16 @@ st.set_page_config(
 
 # Initialize session state for API URL if not present
 if "api_url" not in st.session_state:
-    st.session_state["api_url"] = "http://127.0.0.1:8000"
+    default_url = "http://127.0.0.1:8000"
+    if os.path.exists("tunnel_url.txt"):
+        try:
+            with open("tunnel_url.txt", "r") as f:
+                tunnel_url = f.read().strip()
+                if tunnel_url.startswith("http"):
+                    default_url = tunnel_url
+        except Exception:
+            pass
+    st.session_state["api_url"] = default_url
 
 # Inject Custom CSS for dark glassmorphism design and custom typography
 st.markdown("""
