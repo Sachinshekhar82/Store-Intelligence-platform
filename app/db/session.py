@@ -34,11 +34,10 @@ try:
         logger.info("Connected to production PostgreSQL database successfully.")
 except Exception as e:
     logger.warning(f"Unable to connect to PostgreSQL database ({str(e)}). Falling back to SQLite local database.")
-
 if engine is None:
-    # Fallback to local SQLite database in project directory
+    # Fallback to local SQLite database in project directory (portable relative path)
     is_sqlite_fallback = True
-    sqlite_url = "sqlite:///C:/Users/hp/.gemini/antigravity/scratch/store-intelligence/store_intelligence.db"
+    sqlite_url = "sqlite:///store_intelligence.db"
     engine = create_engine(
         sqlite_url,
         connect_args={"check_same_thread": False}  # Safe multi-threaded SQLite access for FastAPI
