@@ -2,6 +2,8 @@
 
 A production-ready physical retail intelligence platform that converts raw store CCTV footage (YOLOv8 + ByteTrack) into high-fidelity retail business metrics. It computes unique visitor traffic, queue depth, queue abandonment, and conversion rates, visualizing them through a premium cyber HTML5 dashboard and an interactive Streamlit UI.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Sachinshekhar82/Store-Intelligence-platform)
+
 ---
 
 ## 🚀 Key Features
