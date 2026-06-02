@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Intelligence Platform - Live Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/dashboard/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-cube logo-icon"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>ANTIGRAVITY</h2>
+                    <span>RETAIL INTELLIGENCE</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-tab="overview">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="heatmap-tab">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span>Heatmap</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="funnel-tab">
+                    <i class="fa-solid fa-filter"></i>
+                    <span>Funnel Analysis</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="alerts-tab">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Anomalies</span>
+                    <span class="badge" id="anomaly-badge">0</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="connection-status">
+                    <span class="pulse-dot"></span>
+                    <span id="conn-text">Connecting to edge api...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1 id="page-header-title">Live Store Analytics</h1>
+                    <p id="page-header-subtitle">Real-time shopper tracking & conversion telemetry</p>
+                </div>
+                
+                <div class="controls-bar">
+                    <div class="store-selector-wrapper">
+                        <i class="fa-solid fa-store select-icon"></i>
+                        <select id="store-selector" class="store-select">
+                            <option value="ST1008">Brigade Road (ST1008)</option>
+                            <option value="8bfa51c8-27db-4e9b-b9f8-132d7c956102">Downtown Flagship</option>
+                        </select>
+                    </div>
+                    
+                    <button id="refresh-btn" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                    </button>
+                    
+                    <button id="simulate-btn" class="btn btn-primary">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Ingest Event
+                    </button>
+                </div>
+            </header>
+
+            <!-- TAB 1: OVERVIEW -->
+            <div id="overview-tab" class="tab-content active-tab">
+                <!-- Metrics Grid -->
+                <section class="metrics-grid">
+                    <!-- Unique Visitors -->
+                    <div class="metric-card card-gradient-cyan">
+                        <div class="metric-header">
+                            <span>Total Unique Visitors</span>
+                            <div class="metric-icon"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                        <div class="metric-value" id="val-visitors">0</div>
+                        <div class="metric-footer">
+                            <span class="trend-up"><i class="fa-solid fa-arrow-up"></i> +12.4%</span>
+                            <span>vs yesterday</span>
+                        </div>
+                    </div>
+
+                    <!-- Unique Buyers -->
+                    <div class="metric-card card-gradient-magenta">
+                        <div class="metric-header">
+                            <span>Unique Buyers</span>
+                            <div class="metric-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                        </div>
+                        <div class="metric-value" id="val-buyers">0</div>
+                        <div class="metric-footer">
+                            <span class="trend-up"><i class="fa-solid fa-arrow-up"></i> +8.2%</span>
+                            <span>converted checkouts</span>
+                        </div>
+                    </div>
+
+                    <!-- Conversion Rate -->
+                    <div class="metric-card card-gradient-green">
+                        <div class="metric-header">
+                            <span>Store Conversion Rate</span>
+                            <div class="metric-icon"><i class="fa-solid fa-percent"></i></div>
+                        </div>
+                        <div class="metric-value" id="val-conversion">0.0%</div>
+                        <div class="metric-footer">
+                            <span class="trend-up"><i class="fa-solid fa-arrow-up"></i> +3.1%</span>
+                            <span>buyer / visitor ratio</span>
+                        </div>
+                    </div>
+
+                    <!-- Average Dwell Time -->
+                    <div class="metric-card card-gradient-orange">
+                        <div class="metric-header">
+                            <span>Average Dwell Time</span>
+                            <div class="metric-icon"><i class="fa-solid fa-clock"></i></div>
+                        </div>
+                        <div class="metric-value" id="val-dwell">0m</div>
+                        <div class="metric-footer">
+                            <span class="trend-down"><i class="fa-solid fa-arrow-down"></i> -1.5%</span>
+                            <span>average stay duration</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Center Split -->
+                <div class="analytics-split">
+                    <!-- Funnel Card -->
+                    <div class="glass-card funnel-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-filter"></i> Customer Conversion Funnel</h3>
+                            <span class="card-subtitle">Visitor drop-off analysis by store milestones</span>
+                        </div>
+                        <div class="card-body flex-center">
+                            <div class="funnel-container" id="funnel-viz">
+                                <!-- Dynamically generated funnel bars -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Queue Telemetry Card -->
+                    <div class="glass-card queue-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-cash-register"></i> Billing Queue Monitor</h3>
+                            <span class="card-subtitle">Real-time checkout lane telemetry (CAM5)</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="queue-telemetry">
+                                <div class="queue-status-block">
+                                    <div class="status-gauge">
+                                        <div class="gauge-value" id="val-queue-depth">0</div>
+                                        <div class="gauge-label">People in Queue</div>
+                                    </div>
+                                    <div class="status-gauge text-magenta">
+                                        <div class="gauge-value" id="val-abandonment-rate">0.0%</div>
+                                        <div class="gauge-label">Abandonment Rate</div>
+                                    </div>
+                                </div>
+                                <div class="queue-chart-container">
+                                    <canvas id="queueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Anomalies Panel (Quick View) -->
+                <section class="glass-card anomalies-card-quick">
+                    <div class="card-header-flex">
+                        <div>
+                            <h3><i class="fa-solid fa-triangle-exclamation text-yellow"></i> Active Operational Alerts</h3>
+                            <span class="card-subtitle">Significant behavioral metrics deviations in store operations</span>
+                        </div>
+                        <a href="#" class="view-all-link" id="goto-alerts-btn">View All Alerts <i class="fa-solid fa-angle-right"></i></a>
+                    </div>
+                    <div class="card-body">
+                        <div class="anomalies-list-container" id="anomalies-list-quick">
+                            <!-- Injected anomalies -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 2: HEATMAP -->
+            <div id="heatmap-tab-content" class="tab-content">
+                <div class="glass-card full-page-card">
+                    <div class="card-header-flex">
+                        <div>
+                            <h3><i class="fa-solid fa-map-location-dot"></i> Spatial Visitor Density Heatmap</h3>
+                            <span class="card-subtitle">Shopper coordinates mapping overlaid on store layout</span>
+                        </div>
+                        <div class="heatmap-controls">
+                            <div class="control-group">
+                                <label for="cam-selector"><i class="fa-solid fa-video"></i> Camera Select:</label>
+                                <select id="cam-selector" class="control-select">
+                                    <option value="CAM1">Skincare Zone (CAM1)</option>
+                                    <option value="CAM2">Makeup Zone (CAM2)</option>
+                                    <option value="CAM3">Store Entry (CAM3)</option>
+                                    <option value="CAM5">Billing Counter (CAM5)</option>
+                                </select>
+                            </div>
+                            <div class="toggle-container">
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-heatmap" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                                <span>Show Heatmap</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body text-center flex-center scroll-box">
+                        <div class="layout-viewer-container">
+                            <img src="/data/store_layout.png" alt="Store Layout" id="layout-image" class="layout-bg">
+                            <canvas id="heatmap-canvas" class="heatmap-overlay"></canvas>
+                            <!-- Tooltip for hover details -->
+                            <div id="heatmap-tooltip" class="heatmap-tooltip"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: FUNNEL ANALYSIS (FULL PAGE) -->
+            <div id="funnel-tab-content" class="tab-content">
+                <div class="glass-card full-page-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-filter"></i> Deep Dive Conversion Funnel</h3>
+                        <span class="card-subtitle font-sm">Explore transition ratios, shopper drop-offs, and checkout blockages.</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="funnel-detailed-grid">
+                            <div class="funnel-detailed-visual" id="funnel-detailed-visual">
+                                <!-- Detailed graphic funnel -->
+                            </div>
+                            <div class="funnel-metrics-table-wrapper">
+                                <table class="analytics-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Funnel Stage</th>
+                                            <th class="text-right">Visitor Count</th>
+                                            <th class="text-right">Conversion Ratio</th>
+                                            <th class="text-right">Loss / Drop-off</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="funnel-table-body">
+                                        <!-- Table injected dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: ALERTS / ANOMALIES -->
+            <div id="alerts-tab-content" class="tab-content">
+                <div class="glass-card full-page-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-circle-exclamation text-magenta"></i> Store Intelligence Anomalies & Alerts Log</h3>
+                        <span class="card-subtitle">Real-time flagged operational anomalies exceeding calculated baseline thresholds.</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="alerts-detailed-list" id="alerts-list-detailed">
+                            <!-- Full detail list of anomalies -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/dashboard/app.js"></script>
+</body>
+</html>

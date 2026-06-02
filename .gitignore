@@ -1,0 +1,46 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Python caching
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local SQLite databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Large datasets and media files (external CCTV video feeds)
+data/*.mp4
+data/videos/
+data/*.xlsx
+data/*.csv
+yolov8n.pt
+
+# Logging
+*.log
+streamlit_run.log
+streamlit_diagnostic.log
+streamlit_diagnostic.log.*
+tests_output.txt
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
