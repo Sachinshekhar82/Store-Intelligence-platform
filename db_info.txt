@@ -1,0 +1,12 @@
+Tables: [('stores',), ('cameras',), ('visitors',), ('anomalies',), ('sessions',), ('events',), ('transactions',)]
+
+Table 'stores' row count: 1
+Table 'cameras' row count: 4
+Table 'visitors' row count: 2
+Table 'anomalies' row count: 0
+Table 'sessions' row count: 0
+Table 'events' row count: 2
+Table 'transactions' row count: 0
+
+Events by camera:
+[('CAM1', 2)]

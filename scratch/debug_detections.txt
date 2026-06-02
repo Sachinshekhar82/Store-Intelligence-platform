@@ -1,0 +1,20 @@
+
+=================== CAM1 ===================
+Total frames: 432
+First 50 frames: Total detections = 30
+Classes: {'frisbee': 22, 'tennis racket': 1, 'surfboard': 3, 'bird': 4}
+
+=================== CAM2 ===================
+Total frames: 299
+First 50 frames: Total detections = 26
+Classes: {'kite': 15, 'airplane': 11}
+
+=================== CAM3 ===================
+Total frames: 667
+First 50 frames: Total detections = 241
+Classes: {'person': 54, 'tv': 147, 'remote': 27, 'keyboard': 11, 'cell phone': 1, 'mouse': 1}
+
+=================== CAM5 ===================
+Total frames: 401
+First 50 frames: Total detections = 160
+Classes: {'person': 157, 'cell phone': 3}

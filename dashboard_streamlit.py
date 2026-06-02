@@ -29,6 +29,7 @@ if "api_url" not in st.session_state:
             pass
     st.session_state["api_url"] = default_url
 
+
 # Inject Custom CSS for dark glassmorphism design and custom typography
 st.markdown("""
 <style>
@@ -140,8 +141,10 @@ st.markdown("""
 
 # Fetching Data helper
 def query_api(endpoint: str, params: dict = None):
+    if st.session_state.get("connection_mode") == "Offline Simulator (Mock Data)":
+        return None
     try:
-        url = f"{st.session_state['api_url']}{endpoint}"
+        url = f"{st.session_state.get('api_url', 'http://127.0.0.1:8000')}{endpoint}"
         r = httpx.get(url, params=params, timeout=2.0)
         if r.status_code == 200:
             return r.json()
@@ -152,18 +155,30 @@ def query_api(endpoint: str, params: dict = None):
 # Sidebar Controls for Store and Refresh
 with st.sidebar:
     st.markdown("### 🛠️ Controls")
-    api_url_input = st.text_input("API Base URL Override", st.session_state["api_url"])
-    st.session_state["api_url"] = api_url_input
     
-    store_id = st.text_input("Store ID", "ST1008")
+    connection_mode = st.radio(
+        "Data Source Mode",
+        ["Live API Backend", "Offline Simulator (Mock Data)"],
+        index=0,
+        help="Switch between querying the live backend API and running offline with simulated mock data."
+    )
+    st.session_state["connection_mode"] = connection_mode
     
-    # Check API health
-    health = query_api("/health")
-    if health and health.get("status") == "healthy":
-        st.markdown("🟢 **Edge API Status: Connected**")
-    else:
-        st.markdown("🔴 **Edge API Status: Offline / Fallback**")
+    if connection_mode == "Live API Backend":
+        api_url_input = st.text_input("API Base URL Override", st.session_state["api_url"])
+        st.session_state["api_url"] = api_url_input
         
+        # Check API health
+        health = query_api("/health")
+        if health and health.get("status") == "healthy":
+            st.markdown("🟢 **Edge API Status: Connected**")
+        else:
+            st.markdown("🔴 **Edge API Status: Offline / Fallback**")
+    else:
+        st.markdown("🟡 **Offline Mode: Active**")
+        st.caption("Using offline mock data. API queries are disabled.")
+        
+    store_id = st.text_input("Store ID", "ST1008")
     st.info("🔄 Auto-refreshing dashboard metrics dynamically every 2 seconds.")
 
 # Header Layout
@@ -345,7 +360,27 @@ with tab2:
     with col_heat_plot:
         # Fetch Heatmap coordinates
         heatmap_data = query_api(f"/stores/{store_id}/heatmap", params={"camera_id": selected_cam})
-        if not heatmap_data:
+        
+        # Check if the API returned the generic fallback coordinates (no database events)
+        is_backend_fallback = False
+        if heatmap_data:
+            coords = heatmap_data.get("coordinates", [])
+            fallback_coords = [
+                {"x": 150.2, "y": 210.5, "weight": 4.5},
+                {"x": 160.8, "y": 215.1, "weight": 5.0},
+                {"x": 320.0, "y": 110.4, "weight": 2.1},
+                {"x": 325.4, "y": 108.9, "weight": 1.8},
+                {"x": 410.5, "y": 380.2, "weight": 6.7}
+            ]
+            if len(coords) == len(fallback_coords):
+                match_count = 0
+                for c in coords:
+                    if any(abs(c["x"] - fc["x"]) < 0.01 and abs(c["y"] - fc["y"]) < 0.01 for fc in fallback_coords):
+                        match_count += 1
+                if match_count == len(fallback_coords):
+                    is_backend_fallback = True
+        
+        if not heatmap_data or is_backend_fallback:
             if selected_cam == "CAM1":  # Skincare Zone
                 heatmap_data = {
                     "coordinates": [
