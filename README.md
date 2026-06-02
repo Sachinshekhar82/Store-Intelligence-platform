@@ -38,7 +38,8 @@ store-intelligence/
 │   └── main.py             # FastAPI HTTP routes, logs, and validators
 ├── pipeline/               # Edge-side vision scripts (YOLOv8, ByteTrack, zoning)
 │   ├── zoning.py
-│   └── edge_pipeline.py
+│   ├── edge_pipeline.py
+│   └── extract_heatmap_coords.py # YOLOv8 video coordinate extractor utility
 ├── tests/                  # pytest test suites
 │   └── test_store_intelligence.py
 ├── dashboard/              # HTML5 Web UI Files (index.html, styles.css, app.js)
@@ -99,6 +100,17 @@ docker compose up --build
     .\.venv\Scripts\python.exe pipeline/edge_pipeline.py --simulation
     ```
     *Streams simulated retail telemetry to the API server, showing live updates on the dashboards in real-time.*
+
+5.  **Extract Coordinates from Local MP4 Videos (YOLOv8 Heatmaps)**:
+    First, ensure vision libraries are installed:
+    ```bash
+    .\.venv\Scripts\pip.exe install opencv-python-headless ultralytics
+    ```
+    Run the pre-processing utility to extract person center coordinates directly from the MP4 video clips (`CAM1.mp4`, `CAM2.mp4`, `CAM3.mp4`, `CAM5.mp4` under the `data/` folder) and ingest them into your local SQLite database:
+    ```bash
+    .\.venv\Scripts\python.exe pipeline/extract_heatmap_coords.py
+    ```
+    *This processes the video frames and updates the SQLite events table. Switch cameras on the Streamlit dashboard to render the newly populated coordinates.*
 
 ---
 
